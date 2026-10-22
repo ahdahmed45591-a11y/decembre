@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BRVM Analytics - Tableau de Bord Boursier Haute Performance</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-main: #0B0F19;
+            --bg-card: rgba(17, 24, 39, 0.7);
+            --border-card: rgba(255, 255, 255, 0.08);
+            --accent-cyan: #06B6D4;
+            --accent-emerald: #10B981;
+            --accent-rose: #F43F5E;
+            --text-main: #F3F4F6;
+            --text-muted: #9CA3AF;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.12) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-card);
+        }
+
+        .brand h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #38BDF8, #10B981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 0.2rem;
+        }
+
+        .badge-live {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-emerald);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .badge-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-emerald);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-emerald);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-card);
+            border-radius: 16px;
+            padding: 1.25rem;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(6, 182, 212, 0.4);
+        }
+
+        .kpi-title {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        .kpi-sub {
+            font-size: 0.8rem;
+            color: var(--accent-cyan);
+            margin-top: 0.4rem;
+        }
+
+        /* Main Section */
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-card);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+        }
+
+        .panel-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        /* Chart container */
+        .chart-container {
+            position: relative;
+            height: 380px;
+            width: 100%;
+        }
+
+        /* Search & Controls */
+        .controls-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .search-input {
+            flex: 1;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border-card);
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent-cyan);
+        }
+
+        .filter-btn {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border-card);
+            color: var(--text-muted);
+            padding: 0.75rem 1.2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: var(--accent-cyan);
+            color: #000;
+            border-color: var(--accent-cyan);
+        }
+
+        /* Table */
+        .table-responsive {
+            max-height: 500px;
+            overflow-y: auto;
+            border-radius: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: rgba(15, 23, 42, 0.9);
+            color: var(--text-muted);
+            padding: 0.85rem 1rem;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        td {
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        tr {
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        tr.selected {
+            background: rgba(6, 182, 212, 0.12);
+            border-left: 3px solid var(--accent-cyan);
+        }
+
+        .tag-positive {
+            color: var(--accent-emerald);
+            font-weight: 600;
+        }
+
+        .tag-negative {
+            color: var(--accent-rose);
+            font-weight: 600;
+        }
+
+        .badge-rsi {
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .rsi-normal { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); }
+        .rsi-overbought { background: rgba(244, 63, 94, 0.15); color: var(--accent-rose); }
+        .rsi-oversold { background: rgba(56, 189, 248, 0.15); color: #38BDF8; }
+
+        /* Loader */
+        #loader {
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">
+            <h1>BRVM Analytics Pro</h1>
+            <p>Moteur d'Analyse Financière & Données en Temps Réel</p>
+        </div>
+        <div class="badge-live">
+            <span class="badge-dot"></span>
+            <span>Moteur Sync • Données BRVM</span>
+        </div>
+    </header>
+
+    <div id="loader">⚡ Chargement rapide des données BRVM en cours...</div>
+
+    <div id="app" style="display: none;">
+        <!-- KPI Row -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-title">Actifs Analysés</div>
+                <div class="kpi-value" id="kpi-total-tickers">66</div>
+                <div class="kpi-sub">48 Actions • 18 Indices</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Historique Cumulé</div>
+                <div class="kpi-value" id="kpi-total-records">219,394</div>
+                <div class="kpi-sub">Cotations enregistrées (1998-2026)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Dernière Séance</div>
+                <div class="kpi-value" id="kpi-last-date">-</div>
+                <div class="kpi-sub">Synchronisé avec SQLite</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Temps de Traitement</div>
+                <div class="kpi-value" style="color: var(--accent-emerald);">3.86s</div>
+                <div class="kpi-sub">⚡ 56 819 requêtes / sec</div>
+            </div>
+        </div>
+
+        <div class="dashboard-layout">
+            <!-- Left Side: Interactive Chart -->
+            <div>
+                <div class="card-panel">
+                    <div class="panel-header">
+                        <div>
+                            <span class="panel-title" id="selected-ticker-title">SONATEL (SNTS)</span>
+                            <span style="color: var(--text-muted); margin-left: 0.5rem;" id="selected-ticker-price">31,495.00 XOF</span>
+                        </div>
+                        <div id="selected-ticker-perf" class="tag-positive">+0.0%</div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Ticker List Table -->
+                <div class="card-panel">
+                    <div class="controls-bar">
+                        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Rechercher un ticker (ex: SNTS, BRVM30, SGBC)...">
+                        <button class="filter-btn active" onclick="filterCategory('ALL', this)">Tous</button>
+                        <button class="filter-btn" onclick="filterCategory('STOCKS', this)">Actions</button>
+                        <button class="filter-btn" onclick="filterCategory('INDEXES', this)">Indices</button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Ticker</th>
+                                    <th>Dernier Cours (XOF)</th>
+                                    <th>Var. Jour (%)</th>
+                                    <th>Perf. 1 Mois (%)</th>
+                                    <th>RSI (14)</th>
+                                    <th>Volatilité</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tickerTableBody">
+                                <!-- Dynamic JS Injection -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Top Movers & Details -->
+            <div>
+                <div class="card-panel">
+                    <div class="panel-title" style="margin-bottom: 1rem;">🔥 Actions les Plus Chères</div>
+                    <div id="topExpensiveList"></div>
+                </div>
+
+                <div class="card-panel">
+                    <div class="panel-title" style="margin-bottom: 1rem;">📈 Résumé Technique (Indicateurs)</div>
+                    <div style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
+                        <p><strong>• SMA (Moyenne Mobile) :</strong> Évalue la tendance court terme (SMA 20) vs long terme (SMA 50).</p>
+                        <p style="margin-top: 0.5rem;"><strong>• RSI (14 jours) :</strong> 
+                            <span style="color: var(--accent-emerald)">30-70 Neutre</span>, 
+                            <span style="color: var(--accent-rose)">>70 Suracheté</span>, 
+                            <span style="color: #38BDF8"><30 Survendu</span>.
+                        </p>
+                        <p style="margin-top: 0.5rem;"><strong>• Volatilité :</strong> Écart-type annualisé du rendement journalier.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let globalData = null;
+        let chartInstance = null;
+        let currentFilter = 'ALL';
+        let selectedTicker = 'SNTS';
+
+        async function initDashboard() {
+            try {
+                const response = await fetch('data/brvm_summary.json');
+                globalData = await response.json();
+
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('app').style.display = 'block';
+
+                renderKPIs();
+                renderTable();
+                renderTopExpensive();
+                
+                // Select initial ticker
+                selectTicker(selectedTicker);
+
+                // Add search listener
+                document.getElementById('searchInput').addEventListener('input', renderTable);
+            } catch (err) {
+                document.getElementById('loader').innerHTML = '❌ Erreur de chargement de `data/brvm_summary.json`. Exécutez `python brvm_engine.py`.';
+            }
+        }
+
+        function renderKPIs() {
+            document.getElementById('kpi-total-tickers').innerText = globalData.total_tickers;
+            document.getElementById('kpi-total-records').innerText = globalData.total_records.toLocaleString('fr-FR');
+            if (globalData.summary && globalData.summary.length > 0) {
+                document.getElementById('kpi-last-date').innerText = globalData.summary[0].last_date;
+            }
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tickerTableBody');
+            const search = document.getElementById('searchInput').value.toUpperCase();
+            tbody.innerHTML = '';
+
+            const filtered = globalData.summary.filter(item => {
+                const matchesSearch = item.ticker.includes(search);
+                if (currentFilter === 'STOCKS') return matchesSearch && !item.is_index;
+                if (currentFilter === 'INDEXES') return matchesSearch && item.is_index;
+                return matchesSearch;
+            });
+
+            filtered.forEach(item => {
+                const tr = document.createElement('tr');
+                if (item.ticker === selectedTicker) tr.classList.add('selected');
+
+                const changeClass = item.daily_change_pct >= 0 ? 'tag-positive' : 'tag-negative';
+                const changeSign = item.daily_change_pct >= 0 ? '+' : '';
+
+                const ret1mClass = item.return_1m_pct >= 0 ? 'tag-positive' : 'tag-negative';
+                const ret1mSign = item.return_1m_pct >= 0 ? '+' : '';
+
+                let rsiBadge = 'rsi-normal';
+                if (item.rsi_14 > 70) rsiBadge = 'rsi-overbought';
+                if (item.rsi_14 < 30) rsiBadge = 'rsi-oversold';
+
+                tr.innerHTML = `
+                    <td><strong>${item.ticker}</strong> ${item.is_index ? '<span style="font-size:0.75rem; color:#06B6D4;">[INDICE]</span>' : ''}</td>
+                    <td>${item.close.toLocaleString('fr-FR', {minimumFractionDigits: 2})}</td>
+                    <td class="${changeClass}">${changeSign}${item.daily_change_pct}%</td>
+                    <td class="${ret1mClass}">${ret1mSign}${item.return_1m_pct}%</td>
+                    <td><span class="badge-rsi ${rsiBadge}">${item.rsi_14}</span></td>
+                    <td>${item.volatility_annualized}%</td>
+                `;
+
+                tr.onclick = () => selectTicker(item.ticker);
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterCategory(cat, btn) {
+            currentFilter = cat;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderTable();
+        }
+
+        function renderTopExpensive() {
+            const container = document.getElementById('topExpensiveList');
+            const sorted = [...globalData.summary]
+                .filter(s => !s.is_index)
+                .sort((a, b) => b.close - a.close)
+                .slice(0, 5);
+
+            container.innerHTML = sorted.map((s, idx) => `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding: 0.6rem 0; border-bottom: 1px solid rgba(255,255,255,0.05)">
+                    <div>
+                        <strong style="color: var(--accent-cyan)">#${idx + 1} ${s.ticker}</strong>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">${s.total_trading_days} jours de cotation</div>
+                    </div>
+                    <div style="text-align: right; font-weight: 600;">
+                        ${s.close.toLocaleString('fr-FR')} XOF
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectTicker(ticker) {
+            selectedTicker = ticker;
+            renderTable();
+
+            const tickerInfo = globalData.summary.find(s => s.ticker === ticker);
+            if (tickerInfo) {
+                document.getElementById('selected-ticker-title').innerText = `${tickerInfo.ticker} ${tickerInfo.is_index ? '(Indice)' : ''}`;
+                document.getElementById('selected-ticker-price').innerText = `${tickerInfo.close.toLocaleString('fr-FR')} XOF`;
+                
+                const perfElem = document.getElementById('selected-ticker-perf');
+                const sign = tickerInfo.daily_change_pct >= 0 ? '+' : '';
+                perfElem.innerText = `${sign}${tickerInfo.daily_change_pct}%`;
+                perfElem.className = tickerInfo.daily_change_pct >= 0 ? 'tag-positive' : 'tag-negative';
+            }
+
+            renderChart(ticker);
+        }
+
+        function renderChart(ticker) {
+            const chartData = globalData.charts_data[ticker];
+            if (!chartData) return;
+
+            const ctx = document.getElementById('mainChart').getContext('2d');
+
+            if (chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.dates,
+                    datasets: [
+                        {
+                            label: 'Prix de Clôture (XOF)',
+                            data: chartData.prices,
+                            borderColor: '#06B6D4',
+                            backgroundColor: 'rgba(6, 182, 212, 0.05)',
+                            fill: true,
+                            borderWidth: 2,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Moyenne Mobile 20j (SMA 20)',
+                            data: chartData.sma_20,
+                            borderColor: '#10B981',
+                            borderWidth: 1.5,
+                            borderDash: [4, 4],
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Moyenne Mobile 50j (SMA 50)',
+                            data: chartData.sma_50,
+                            borderColor: '#F59E0B',
+                            borderWidth: 1.5,
+                            borderDash: [2, 2],
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { labels: { color: '#9CA3AF', font: { family: 'Outfit' } } }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#9CA3AF', maxTicksLimit: 12 }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#9CA3AF' }
+                        }
+                    }
+                }
+            });
+        }
+
+        window.onload = initDashboard;
+    </script>
+</body>
+</html>

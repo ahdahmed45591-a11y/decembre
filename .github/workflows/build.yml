@@ -1,0 +1,66 @@
+name: Backend Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  test-backend:
+    name: Test Backend Django
+    runs-on: ubuntu-latest
+
+    services:
+      db:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: baou
+          POSTGRES_USER: baou
+          POSTGRES_PASSWORD: ${{ secrets.CI_POSTGRES_PASSWORD || 'baou_ci_password_123' }}
+        ports: [ "5432:5432" ]
+        options: >-
+          --health-cmd "pg_isready -U baou"
+          --health-interval 5s
+          --health-retries 10
+
+    env:
+      POSTGRES_HOST: localhost
+      POSTGRES_PASSWORD: ${{ secrets.CI_POSTGRES_PASSWORD || 'baou_ci_password_123' }}
+      JWT_SECRET: ${{ secrets.CI_JWT_SECRET || 'baou_ci_jwt_secret_super_secure_32bytes' }}
+      BRVM_DATA_DIR: ${{ github.workspace }}/data/brvm_data
+      UPLOAD_DIR: /tmp/uploads
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: pip
+        cache-dependency-path: backend_django/requirements.txt
+
+    - name: Install Dependencies
+      run: pip install -r backend_django/requirements.txt
+
+    - name: Check BRVM CSV Parser
+      run: python backend_django/api/brvm.py
+
+    - name: Check Login Lockout Tiers
+      run: python backend_django/test_lockout.py
+
+    - name: Migrate and Seed
+      working-directory: backend_django
+      run: |
+        python manage.py migrate --noinput
+        python manage.py seed
+
+    - name: Run API End-to-End Test
+      working-directory: backend_django
+      run: |
+        gunicorn config.wsgi:application --bind 127.0.0.1:3001 --workers 2 --daemon
+        for i in $(seq 30); do curl -sf http://127.0.0.1:3001/health && break; sleep 2; done
+        python test_api.py

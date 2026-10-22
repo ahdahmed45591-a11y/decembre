@@ -1,0 +1,36 @@
+.DS_Store
+.env
+
+# Node.js dependencies
+node_modules/
+dist/
+
+# Fichiers SQLite temporaires
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Fichiers accidentels
+Saisissez
+
+# Python
+__pycache__/
+*.pyc
+
+# Secrets Docker
+.env.docker
+
+# Pieces KYC uploadees par les clients (donnees, pas du code)
+data/uploads/
+
+# Dumps de sauvegarde Postgres (donnees, pas du code -- voir db-backup)
+backups/
+
+# Documents juridiques prives (associes, pas de code)
+contrat_repartition_droits_BAOU.pdf
+
+# Builds et caches
+*.apk
+BAOU-Finance-Mobile.apk/
+.vercel/
+admin/.vercel/

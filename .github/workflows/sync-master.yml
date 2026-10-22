@@ -1,0 +1,25 @@
+# Sauvegarde quotidienne : avance la branche master sur main.
+name: Sync master
+
+on:
+  schedule:
+    # Execution automatique tous les jours a 03:00 UTC
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+jobs:
+  sync:
+    name: Avancer master sur main
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout main
+      uses: actions/checkout@v4
+      with:
+        ref: main
+        fetch-depth: 0
+
+    - name: Push vers master
+      run: git push origin HEAD:master
