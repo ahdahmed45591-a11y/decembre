@@ -31,6 +31,10 @@ jobs:
       JWT_SECRET: ${{ secrets.CI_JWT_SECRET || 'baou_ci_jwt_secret_super_secure_32bytes' }}
       BRVM_DATA_DIR: ${{ github.workspace }}/data/brvm_data
       UPLOAD_DIR: /tmp/uploads
+      # Valeurs de test CI uniquement (base jetable, test_api.py se connecte avec admin2024)
+      ADMIN_PASSWORD: admin2024
+      DEV_MODE: "1"
+      ALLOWED_HOSTS: 127.0.0.1
 
     steps:
     - name: Checkout Repository
@@ -51,6 +55,10 @@ jobs:
 
     - name: Check Login Lockout Tiers
       run: python backend_django/test_lockout.py
+
+    - name: Money rules tests
+      working-directory: backend_django
+      run: python manage.py test test_money_rules
 
     - name: Migrate and Seed
       working-directory: backend_django
