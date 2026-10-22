@@ -100,7 +100,8 @@ def _extra_folders():
     )
 
 
-_cache = (0.0, [])
+# -inf : monotonic() peut valoir < 300 s juste apres le demarrage de la machine
+_cache = (float("-inf"), [])
 
 
 def stocks():
