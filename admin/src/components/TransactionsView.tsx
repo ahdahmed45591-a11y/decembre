@@ -329,7 +329,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
               </div>
             </div>
 
-            {/* Proof of Payment Section with interactive Mobile Money Receipt */}
+            {/* Proof of Payment Section with payment receipt */}
             <div className="bg-white border border-[#dec1af]/30 rounded-xl p-6 hover:shadow-sm transition-all duration-200">
               <h4 className="font-sans font-bold text-[16px] text-[#0b1c30] mb-6 flex items-center gap-2">
                 <FileText className="text-[#ff8200] w-5 h-5" />
@@ -352,7 +352,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                   </div>
                 </div>
 
-                {/* Simulated Smartphone orange money CI receipt */}
+                {/* Payment receipt */}
                 <div className="bg-white rounded-xl border border-[#dec1af]/35 shadow-md flex flex-col relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-full h-1 bg-[#ff8200]"></div>
                   
@@ -363,11 +363,11 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                         CONFIRMATION DE TRANSFERT
                       </p>
                       <p className="text-[11px] text-[#574235]/80 font-sans font-medium">
-                        Orange Money Côte d'Ivoire
+                        Carte bancaire / prépayée
                       </p>
                     </div>
                     <div className="w-9 h-6 bg-[#ff8200]/20 rounded flex items-center justify-center font-sans font-black text-[10px] text-[#ff8200]">
-                      OM
+                      CB
                     </div>
                   </div>
 
@@ -621,21 +621,13 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                           <div className="w-6 h-6 rounded bg-[#0b1c30] flex items-center justify-center text-[10px] text-white font-extrabold shadow-sm shrink-0">
                             JK
                           </div>
-                        ) : tx.paymentMethodCode === 'OM' ? (
-                          <div className="w-6 h-6 rounded bg-[#F79E1B] flex items-center justify-center text-[10px] text-white font-extrabold shadow-sm shrink-0">
-                            OM
-                          </div>
-                        ) : tx.paymentMethodCode === 'WV' ? (
-                          <div className="w-6 h-6 rounded bg-[#21C5F0] flex items-center justify-center text-[10px] text-white font-extrabold shadow-sm shrink-0">
-                            WV
-                          </div>
                         ) : (
                           <div className="w-6 h-6 rounded bg-gray-500 flex items-center justify-center text-[10px] text-white font-extrabold shadow-sm shrink-0">
                             BK
                           </div>
                         )}
                         <span className="font-sans text-[13px] font-medium text-[#0b1c30]">
-                          {tx.paymentMethodCode === 'JK' ? 'Jèko' : tx.paymentMethodCode === 'OM' ? 'Orange Money' : tx.paymentMethodCode === 'WV' ? 'Wave' : 'Virement Bank'}
+                          {tx.paymentMethodCode === 'JK' ? 'Carte (Jèko)' : 'Virement Bank'}
                         </span>
                       </div>
                     </td>

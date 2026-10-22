@@ -11,7 +11,7 @@ Dernière mise à jour : 2026
 Les présentes Conditions Générales d'Utilisation (CGU) régissent l'accès et
 l'usage de l'application mobile BAOU Finance, qui permet à ses utilisateurs
 d'investir sur les valeurs cotées à la Bourse Régionale des Valeurs Mobilières
-(BRVM) via un dépôt en Mobile Money.
+(BRVM) via un dépôt par carte bancaire ou prépayée.
 
 2. Éligibilité et inscription
 L'inscription est ouverte à toute personne physique majeure. La création d'un
@@ -21,9 +21,8 @@ d'identité, justificatif, selfie) n'a pas été vérifié et que le contrat de
 courtage SGI n'a pas été signé électroniquement.
 
 3. Fonctionnement du compte
-Le solde disponible provient exclusivement de dépôts effectués via Mobile
-Money (Orange Money, Wave, MTN, Moov, via notre partenaire de paiement Jeko
-Africa). Les ordres d'achat et de vente passés dans l'application sont
+Le solde disponible provient exclusivement de dépôts effectués par carte
+bancaire ou prépayée (via notre partenaire de paiement Jeko Africa). Les ordres d'achat et de vente passés dans l'application sont
 transmis pour exécution sur le marché BRVM ; les quantités et prix affichés
 sont indicatifs jusqu'à validation de l'ordre.
 
@@ -72,13 +71,13 @@ solde de votre portefeuille.
 2. Finalité du traitement
 Ces données sont utilisées pour : créer et sécuriser votre compte, vérifier
 votre identité conformément aux obligations réglementaires (KYC/LCB-FT),
-exécuter vos ordres de bourse, traiter vos dépôts Mobile Money, et vous
+exécuter vos ordres de bourse, traiter vos dépôts par carte, et vous
 contacter en cas de besoin (support, notifications de compte).
 
 3. Partage des données
 Vos données peuvent être partagées avec : la Société de Gestion et
 d'Intermédiation (SGI) partenaire pour l'exécution des ordres, notre
-prestataire de paiement Mobile Money (Jeko Africa) pour le traitement des
+prestataire de paiement par carte (Jeko Africa) pour le traitement des
 dépôts, et les autorités de régulation compétentes si la loi l'exige. Ces
 données ne sont jamais vendues à des tiers à des fins commerciales.
 

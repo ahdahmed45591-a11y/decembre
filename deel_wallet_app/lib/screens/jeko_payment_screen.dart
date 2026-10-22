@@ -100,7 +100,7 @@ class _JekoPaymentScreenState extends State<JekoPaymentScreen> with WidgetsBindi
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Dépôt Mobile Money')),
+        appBar: AppBar(title: const Text('Dépôt par carte')),
         body: Padding(
           padding: const EdgeInsets.all(24),
           child: Center(child: _body(context)),

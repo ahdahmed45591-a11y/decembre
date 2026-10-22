@@ -15,8 +15,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int _i = 0;
 
   static const _slides = [
-    (Icons.smartphone, 'Paiement via mobile money',
-        'Rechargez et payez avec Orange Money, Wave, MTN.'),
+    (Icons.credit_card, 'Paiement par carte',
+        'Rechargez avec une carte bancaire ou prépayée.'),
     (Icons.verified_user, 'Paiement sécurisé',
         'Protégé par un chiffrement de niveau bancaire.'),
     (Icons.trending_up, "Achat & vente d'actions",

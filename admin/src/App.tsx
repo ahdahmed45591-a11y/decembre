@@ -84,7 +84,7 @@ function mapTransaction(t: any): Transaction {
     accountType: 'Standard',
     balance: typeof t.balance === 'number' ? t.balance : (parseFloat(t.balance) || 0),
     ticker: t.ticker || (txType === 'DEPOSIT' ? 'CASH' : '-'),
-    companyName: t.company || (txType === 'DEPOSIT' ? 'Dépôt Mobile Money' : (t.ticker || '-')),
+    companyName: t.company || (txType === 'DEPOSIT' ? 'Dépôt par carte' : (t.ticker || '-')),
     type: txType,
     quantity: t.quantity || 1,
     unitPrice: t.price || t.total || 0,
@@ -103,9 +103,8 @@ function mapTransaction(t: any): Transaction {
     paymentMethod: t.paymentMethod || 'Jeko',
     paymentMethodCode: (() => {
       const m = (t.paymentMethod || '').toLowerCase();
-      if (m.includes('jeko') || m.includes('jèko')) return 'JK';
-      if (m.includes('wave')) return 'WV';
-      return 'OM';
+      if (m.includes('jeko') || m.includes('jèko') || m.includes('carte')) return 'JK';
+      return 'BANK';
     })(),
     reference: t.paymentRef || `REF-${t.id}`,
     proofFileName: `Reçu_${t.id}.pdf`,
@@ -177,7 +176,7 @@ export default function App() {
   const [opUnitPrice, setOpUnitPrice] = useState(''); // montant, pour les dépôts seulement
   const [stockList, setStockList] = useState<{ ticker: string; name: string }[]>([]);
   const [opType, setOpType] = useState<'BUY' | 'SELL' | 'DEPOSIT'>('BUY');
-  const [opMethod, setOpMethod] = useState<'OM' | 'WV' | 'BANK'>('OM');
+  const [opMethod, setOpMethod] = useState<'CARD' | 'BANK'>('CARD');
 
   // ── Toast helper ─────────────────────────────────────────
   const triggerToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'success') => {
@@ -508,7 +507,7 @@ export default function App() {
           userId: clientMatch.id,
           type: opType,
           ...(isDeposit ? { price: amountNum } : { ticker: opTicker, quantity: qtyNum }),
-          paymentMethod: opMethod === 'OM' ? 'Orange Money' : opMethod === 'WV' ? 'Wave' : 'Virement Bancaire',
+          paymentMethod: opMethod === 'CARD' ? 'Carte bancaire' : 'Virement Bancaire',
         }),
       });
       const data = await res.json();
@@ -711,8 +710,7 @@ export default function App() {
                   <label className="block font-bold text-[11px] text-[#574235] uppercase">Méthode de paiement</label>
                   <select value={opMethod} onChange={e => setOpMethod(e.target.value as any)}
                     className="w-full bg-white border border-[#dec1af]/45 rounded-lg px-3 py-2 focus:ring-1 focus:ring-[#ff8200] outline-none">
-                    <option value="OM">Orange Money</option>
-                    <option value="WV">Wave</option>
+                    <option value="CARD">Carte bancaire / prépayée</option>
                     <option value="BANK">Virement Bancaire</option>
                   </select>
                 </div>

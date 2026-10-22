@@ -128,7 +128,7 @@ def main():
 
     # ── Verrou KYC : tant que non verifie, aucune operation d'argent ────
     call("POST", "/api/transactions",
-         {"type": "DEPOSIT", "price": 1000, "paymentMethod": "Wave CI"},
+         {"type": "DEPOSIT", "price": 1000, "paymentMethod": "Carte"},
          token=token, expect=403)
     call("POST", "/api/transactions",
          {"ticker": "SNTS", "type": "BUY", "quantity": 1, "price": snts["price"]},
@@ -139,7 +139,7 @@ def main():
     still_pending = call("POST", "/api/auth/profile", {}, token=token)["user"]
     assert still_pending["kyc"] == "pending", still_pending
     call("POST", "/api/transactions",
-         {"type": "DEPOSIT", "price": 1000, "paymentMethod": "Wave CI"},
+         {"type": "DEPOSIT", "price": 1000, "paymentMethod": "Carte"},
          token=token, expect=403)
 
     # Documents KYC : upload -> statuts auto-deduits, contrat servi par l'API
@@ -294,12 +294,12 @@ def main():
     assert call("PATCH", f"/api/admin/users/{user['id']}/suspend", {},
                 token=admin_token)["data"]["kyc"] == "suspended"
     call("POST", "/api/transactions",
-         {"type": "DEPOSIT", "price": 1000, "paymentMethod": "Wave CI"},
+         {"type": "DEPOSIT", "price": 1000, "paymentMethod": "Carte"},
          token=token, expect=403)
     assert call("PATCH", f"/api/admin/users/{user['id']}/suspend", {},
                 token=admin_token)["data"]["kyc"] == "pending"
     call("POST", "/api/transactions",
-         {"type": "DEPOSIT", "price": 1000, "paymentMethod": "Wave CI"},
+         {"type": "DEPOSIT", "price": 1000, "paymentMethod": "Carte"},
          token=token, expect=403)
 
     call("PATCH", f"/api/admin/users/{user['id']}/kyc", {"status": "verified"}, token=admin_token)

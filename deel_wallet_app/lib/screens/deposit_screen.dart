@@ -44,7 +44,7 @@ class _DepositScreenState extends State<DepositScreen> {
                 onChanged: (_) => setState(() {}),
               ),
               const Spacer(),
-              Text('Orange Money, Wave, MTN, carte bancaire.',
+              Text('Carte bancaire ou carte prépayée.',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodySmall),
               const SizedBox(height: 12),
@@ -56,7 +56,7 @@ class _DepositScreenState extends State<DepositScreen> {
                           MaterialPageRoute(
                               builder: (_) => JekoPaymentScreen(amount: _value)),
                         ),
-                child: const Text('Payer avec Mobile Money'),
+                child: const Text('Payer par carte'),
               ),
             ],
           ),

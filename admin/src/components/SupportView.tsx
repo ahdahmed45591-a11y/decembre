@@ -24,7 +24,7 @@ export const SupportView: React.FC<SupportViewProps> = ({
   const [replyText, setReplyText] = useState('');
   const [ticketMessages, setTicketMessages] = useState<Record<string, { sender: 'ADMIN' | 'CLIENT'; text: string; time: string }[]>>({
     '#T-9021': [
-      { sender: 'CLIENT', text: 'J\'ai effectué un dépôt via Orange Money de 150 000 FCFA il y a plus de 2 heures, mais mon solde n\'est toujours pas mis à jour.', time: '09:45' }
+      { sender: 'CLIENT', text: 'J\'ai effectué un dépôt par carte bancaire de 150 000 FCFA il y a plus de 2 heures, mais mon solde n\'est toujours pas mis à jour.', time: '09:45' }
     ],
     '#T-1142': [
       { sender: 'CLIENT', text: 'Mes justificatifs de domicile ont été rejetés deux fois de suite. Pouvez-vous m\'indiquer quels formats de documents sont acceptés ?', time: 'Hier, 14:20' },

@@ -25,7 +25,7 @@ export interface Transaction {
   dateString: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'ANONYMIZED';
   paymentMethod: string;
-  paymentMethodCode: 'OM' | 'WV' | 'JK' | 'BANK';
+  paymentMethodCode: 'JK' | 'BANK';
   reference: string;
   proofFileName: string;
   proofFileSize: string;
