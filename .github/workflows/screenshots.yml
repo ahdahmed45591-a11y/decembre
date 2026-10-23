@@ -32,13 +32,13 @@ jobs:
         mkdir -p /tmp/shots
         python3 .github/screenshots/shots.py /tmp/shots
 
-    - name: Publier sur la branche screenshots
+    - name: Publier les captures dans le depot
       run: |
         git config user.name "github-actions"
         git config user.email "actions@users.noreply.github.com"
-        git switch --orphan screenshots
-        git rm -rfq . || true
-        cp /tmp/shots/*.png .
-        git add *.png
+        mkdir -p screenshots
+        cp /tmp/shots/*.png screenshots/
+        git add screenshots
         git commit -qm "Captures de l'application"
-        git push -f origin screenshots
+        git pull -q --rebase origin main
+        git push origin HEAD:main
