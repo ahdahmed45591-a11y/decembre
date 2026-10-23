@@ -1,0 +1,44 @@
+name: App Screenshots
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: subosito/flutter-action@v2
+      with:
+        channel: stable
+
+    - name: Build web
+      working-directory: deel_wallet_app
+      run: |
+        flutter create --platforms=web --project-name deel_wallet .
+        flutter pub get
+        flutter build web --release
+
+    - name: Capture
+      run: |
+        pip install playwright
+        playwright install --with-deps chromium
+        (cd deel_wallet_app/build/web && python3 -m http.server 8080 >/dev/null 2>&1 &)
+        sleep 3
+        mkdir -p /tmp/shots
+        python3 .github/screenshots/shots.py /tmp/shots
+
+    - name: Publier sur la branche screenshots
+      run: |
+        git config user.name "github-actions"
+        git config user.email "actions@users.noreply.github.com"
+        git switch --orphan screenshots
+        git rm -rfq . || true
+        cp /tmp/shots/*.png .
+        git add *.png
+        git commit -qm "Captures de l'application"
+        git push -f origin screenshots
