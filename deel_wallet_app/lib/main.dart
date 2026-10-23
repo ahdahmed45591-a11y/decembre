@@ -58,6 +58,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
   final seenOnboarding = prefs.getBool(onboardingSeenKey) ?? false;
+  Api.baseUrl = prefs.getString(apiUrlKey) ?? Api.baseUrl;
   var token = prefs.getString('auth_token');
   if (token != null && token.isNotEmpty) {
     Api.token = token;

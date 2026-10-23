@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api.dart';
 import '../data.dart';
@@ -27,6 +28,31 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  Future<void> _editServer() async {
+    final c = TextEditingController(text: Api.baseUrl);
+    final v = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Adresse du serveur'),
+        content: TextField(
+          controller: c,
+          keyboardType: TextInputType.url,
+          decoration: const InputDecoration(hintText: 'http://192.168.1.23:3001'),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Annuler')),
+          FilledButton(onPressed: () => Navigator.pop(ctx, c.text), child: const Text('Enregistrer')),
+        ],
+      ),
+    );
+    final url = Api.normalizeUrl(v ?? '');
+    if (url.isEmpty) return;
+    Api.baseUrl = url;
+    (await SharedPreferences.getInstance()).setString(apiUrlKey, url);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Serveur : $url')));
+  }
+
   Future<void> _submit() async {
     if (!_form.currentState!.validate()) return;
     setState(() => _busy = true);
@@ -49,6 +75,13 @@ class _LoginScreenState extends State<LoginScreen> {
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
+          actions: [
+            IconButton(
+              tooltip: 'Adresse du serveur',
+              icon: const Icon(Icons.settings_ethernet),
+              onPressed: _editServer,
+            ),
+          ],
         ),
         body: SafeArea(
           child: Form(

@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 /// Backend local derriere nginx. Emulateur Android par defaut ; telephone :
 /// flutter run --dart-define=API_URL=http://IP_DU_PC:3001 (ou l'URL ngrok).
 const _baseUrl = String.fromEnvironment('API_URL', defaultValue: 'http://10.0.2.2:3001');
+const apiUrlKey = 'api_url'; // adresse choisie par l'utilisateur (ecran de connexion)
 
 const _timeout = Duration(seconds: 15);
 
@@ -23,9 +24,18 @@ class Api {
 
   /// Appele quand le serveur refuse le jeton (expire apres 24 h) : l'app se deconnecte.
   static void Function()? onUnauthorized;
-  static const baseUrl = _baseUrl;
+  // Un --dart-define vide (variable CI absente) retombe sur l'adresse emulateur.
+  static String baseUrl = _baseUrl.isEmpty ? 'http://10.0.2.2:3001' : _baseUrl;
 
-  static Uri _uri(String path) => Uri.parse('$_baseUrl$path');
+  /// Normalise une saisie utilisateur : http:// par defaut, sans / final.
+  static String normalizeUrl(String v) {
+    var u = v.trim();
+    if (u.isEmpty) return '';
+    if (!u.startsWith('http://') && !u.startsWith('https://')) u = 'http://$u';
+    return u.replaceAll(RegExp(r'/+$'), '');
+  }
+
+  static Uri _uri(String path) => Uri.parse('$baseUrl$path');
 
   static Map<String, String> get _headers => {
         'Content-Type': 'application/json',
@@ -60,7 +70,7 @@ class Api {
     } on ApiException {
       rethrow;
     } catch (_) {
-      throw ApiException('Impossible de joindre le serveur BAOU Finance.');
+      throw ApiException('Impossible de joindre le serveur BAOU Finance ($baseUrl). Touchez l\'icône réseau pour changer l\'adresse.');
     }
   }
 
@@ -73,7 +83,7 @@ class Api {
     } on ApiException {
       rethrow;
     } catch (_) {
-      throw ApiException('Impossible de joindre le serveur BAOU Finance.');
+      throw ApiException('Impossible de joindre le serveur BAOU Finance ($baseUrl). Touchez l\'icône réseau pour changer l\'adresse.');
     }
   }
 
@@ -86,7 +96,7 @@ class Api {
     } on ApiException {
       rethrow;
     } catch (_) {
-      throw ApiException('Impossible de joindre le serveur BAOU Finance.');
+      throw ApiException('Impossible de joindre le serveur BAOU Finance ($baseUrl). Touchez l\'icône réseau pour changer l\'adresse.');
     }
   }
 }
